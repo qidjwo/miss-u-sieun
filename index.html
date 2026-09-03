@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>From. 시은이에게</title>
+  
+  <!-- 브라우저 탭 및 SNS 공유/DM 미리보기 제목 -->
+  <title>MISS U, SE</title>
+  <meta property="og:title" content="MISS U, SE">
+  <meta property="og:description" content="매일 전하는 이야기 💌">
+  <meta name="twitter:title" content="MISS U, SE">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;500;600&display=swap" rel="stylesheet">
@@ -42,46 +48,72 @@
       text-align: center;
     }
 
-    /* 퀴즈 단계 */
-    .step-indicator {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #b08d98;
-      letter-spacing: 0.08em;
+    /* 비밀번호 입력 화면 스타일 */
+    .lock-icon {
+      font-size: 2.2rem;
       margin-bottom: 12px;
     }
 
-    .question-title {
-      font-size: 1.2rem;
+    .pw-title {
+      font-size: 1.25rem;
       font-weight: 600;
-      line-height: 1.5;
       color: #3f3337;
-      margin-bottom: 24px;
-      word-break: keep-all;
+      margin-bottom: 8px;
     }
 
-    .options {
+    .pw-subtitle {
+      font-size: 0.88rem;
+      color: #8c767c;
+      margin-bottom: 24px;
+    }
+
+    .pw-input-wrapper {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      align-items: center;
+      gap: 12px;
     }
 
-    .option-btn {
+    .pw-input {
       width: 100%;
-      padding: 14px 16px;
-      background: rgba(255, 255, 255, 0.95);
-      border: 1px solid #f0e2e5;
+      max-width: 240px;
+      padding: 14px;
+      font-size: 1.5rem;
+      text-align: center;
+      letter-spacing: 0.35em;
+      border: 1.5px solid #ebd9de;
       border-radius: 14px;
-      font-size: 0.95rem;
+      outline: none;
+      background: #ffffff;
       color: #4a3e42;
-      cursor: pointer;
-      text-align: left;
-      transition: all 0.2s;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    .option-btn:hover {
-      background: #fff5f7;
-      border-color: #f3c2ce;
+    .pw-input:focus {
+      border-color: #e5989b;
+      box-shadow: 0 0 0 4px rgba(229, 152, 155, 0.2);
+    }
+
+    .submit-btn {
+      width: 100%;
+      max-width: 240px;
+      padding: 14px;
+      background: linear-gradient(135deg, #e5989b 0%, #b5838d 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(181, 131, 141, 0.25);
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .submit-btn:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
     }
 
     .error-msg {
@@ -154,7 +186,7 @@
       font-size: 1rem;
     }
 
-    /* 운세 & 보이스 화면 */
+    /* 운세 & 음성 재생 화면 */
     .letter-view {
       font-family: 'Gowun Batang', serif;
       animation: fadeIn 0.7s ease forwards;
@@ -250,16 +282,36 @@
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <!-- 1단계: 본인 인증 퀴즈 -->
-    <div class="card" id="quiz-card">
-      <div class="step-indicator" id="step-label">Question A / D</div>
-      <div class="question-title" id="question-text"></div>
-      <div class="options" id="options-container"></div>
+    <!-- 1단계: 4자리 비밀번호 입력 -->
+    <div class="card" id="password-card">
+      <div class="lock-icon">🔒</div>
+      <div class="pw-title">비밀번호를 입력해 주세요</div>
+      <div class="pw-subtitle">우리만의 4자리 숫자</div>
+      
+      <div class="pw-input-wrapper">
+        <input 
+          type="password" 
+          id="pw-input" 
+          class="pw-input" 
+          maxlength="4" 
+          inputmode="numeric" 
+          pattern="[0-9]*" 
+          placeholder="••••"
+          autocomplete="off"
+        >
+        <button class="submit-btn" id="pw-submit-btn">입장하기</button>
+      </div>
       <div class="error-msg" id="error-text"></div>
     </div>
 
@@ -272,7 +324,7 @@
       <div class="date-grid" id="date-grid"></div>
     </div>
 
-    <!-- 3단계: 오늘의 운세 & 음성 녹음 -->
+    <!-- 3단계: 오늘의 운세 & 음성 재생 -->
     <div class="card hidden" id="letter-card">
       <div class="letter-view">
         <div class="letter-date" id="view-date">2026. 09. 04</div>
@@ -297,35 +349,10 @@
   </div>
 
   <script>
-    /* 1. 퀴즈 데이터 */
-    const quizData = [
-      {
-        step: "Question A / D",
-        question: "너와 내가 공백기 이후에 처음으로 목소리를 들으며 대화를 나눈 날은?",
-        correct: 1,
-        options: ["8월 11일", "8월 12일", "8월 13일", "8월 14일", "8월 15일"]
-      },
-      {
-        step: "Question B / D",
-        question: "내가 태어난 날은?",
-        correct: 2,
-        options: ["2004년 12월 25일", "2005년 1월 5일", "2005년 2월 14일", "2005년 3월 20일", "2005년 5월 5일"]
-      },
-      {
-        step: "Question C / D",
-        question: "내가 네게 써준 시의 제목은?",
-        correct: 1,
-        options: ["蒔誾", "時恩", "始恩", "市銀", "柴隱"]
-      },
-      {
-        step: "Question D / D",
-        question: "요즘 너에 대한 내 생각은?",
-        correct: 5,
-        options: ["별 생각 없다.", "고민이 많다.", "마냥 걱정된다.", "심술이 난다.", "많이 보고 싶다."]
-      }
-    ];
+    /* 비밀번호 설정 */
+    const CORRECT_PASSWORD = "1215";
 
-    /* 2. 9월 4일 ~ 10월 15일 운세 데이터 */
+    /* 9월 4일 ~ 10월 15일 운세 데이터 */
     const dailyData = {
       "2026-09-04": { main: "총운 : 싱글벙글", point: "준 것보다 더 많이 받아요." },
       "2026-09-05": { main: "총운 : 분골쇄신", point: "목적지를 명확히 하세요." },
@@ -359,15 +386,13 @@
       "2026-10-03": { main: "총운 : 장마전선", point: "이것저것 해보는 것도 나쁘지만은 않군요." }
     };
 
-    let currentStep = 0;
-
-    const quizCard = document.getElementById("quiz-card");
+    // DOM 요소
+    const passwordCard = document.getElementById("password-card");
     const calendarCard = document.getElementById("calendar-card");
     const letterCard = document.getElementById("letter-card");
 
-    const stepLabel = document.getElementById("step-label");
-    const questionText = document.getElementById("question-text");
-    const optionsContainer = document.getElementById("options-container");
+    const pwInput = document.getElementById("pw-input");
+    const pwSubmitBtn = document.getElementById("pw-submit-btn");
     const errorText = document.getElementById("error-text");
 
     const dateGrid = document.getElementById("date-grid");
@@ -379,37 +404,31 @@
     const audioSource = document.getElementById("audio-source");
     const backBtn = document.getElementById("back-to-calendar");
 
-    function renderQuestion() {
-      const current = quizData[currentStep];
-      stepLabel.innerText = current.step;
-      questionText.innerText = current.question;
-      errorText.innerText = "";
-      optionsContainer.innerHTML = "";
-
-      current.options.forEach((opt, index) => {
-        const btn = document.createElement("button");
-        btn.className = "option-btn";
-        btn.innerText = `${index + 1}번. ${opt}`;
-        btn.onclick = () => handleChoice(index + 1);
-        optionsContainer.appendChild(btn);
-      });
-    }
-
-    function handleChoice(selectedAnswer) {
-      if (selectedAnswer === quizData[currentStep].correct) {
-        currentStep++;
-        if (currentStep < quizData.length) {
-          renderQuestion();
-        } else {
-          quizCard.classList.add("hidden");
-          calendarCard.classList.remove("hidden");
-          renderCalendar();
-        }
+    // 비밀번호 검증 함수
+    function checkPassword() {
+      if (pwInput.value.trim() === CORRECT_PASSWORD) {
+        passwordCard.classList.add("hidden");
+        calendarCard.classList.remove("hidden");
+        renderCalendar();
       } else {
-        errorText.innerText = "오답입니다! 다시 선택하세요!";
+        errorText.innerText = "비밀번호가 일치하지 않아요.";
+        pwInput.style.animation = "shake 0.3s ease";
+        setTimeout(() => {
+          pwInput.style.animation = "";
+        }, 300);
+        pwInput.value = "";
+        pwInput.focus();
       }
     }
 
+    pwSubmitBtn.addEventListener("click", checkPassword);
+    pwInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        checkPassword();
+      }
+    });
+
+    // 날짜 생성
     function renderCalendar() {
       dateGrid.innerHTML = "";
       const startDate = new Date(2026, 8, 4); // 9월 4일
@@ -452,7 +471,6 @@
 
       viewDate.innerText = `2026년 ${displayLabel}`;
       
-      // 10월 4일 이후이거나 운세 정보가 없는 날 처리
       if (dailyData[dateKey]) {
         viewTag.innerText = "🔮 오늘의 운세";
         viewFortuneMain.innerText = dailyData[dateKey].main;
@@ -463,7 +481,6 @@
         viewFortuneSub.innerText = "오늘 하루도 따뜻하게 보내길 바라며 녹음본을 들어줘.";
       }
 
-      // audio/YYYY-MM-DD.m4a 매핑
       audioSource.src = `audio/${dateKey}.m4a`;
       viewAudio.load();
     }
@@ -474,5 +491,8 @@
       calendarCard.classList.remove("hidden");
     });
 
-    renderQuestion();
+    // 시작 시 비밀번호 입력창 포커스
+    pwInput.focus();
   </script>
+</body>
+</html>
