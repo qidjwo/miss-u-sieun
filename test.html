@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[검수용] From. 시은이에게</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: linear-gradient(135deg, #fff0f5 0%, #fdfbfb 50%, #f3e7e9 100%);
+      color: #333333;
+      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 36px 24px;
+      border-radius: 24px;
+      box-shadow: 0 12px 35px rgba(220, 180, 195, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      text-align: center;
+    }
+
+    /* 퀴즈 영역 */
+    .step-indicator {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #b08d98;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+
+    .question-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      line-height: 1.5;
+      color: #3f3337;
+      margin-bottom: 24px;
+      word-break: keep-all;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option-btn {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid #f0e2e5;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      color: #4a3e42;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+    }
+
+    .option-btn:hover {
+      background: #fff5f7;
+      border-color: #f3c2ce;
+    }
+
+    .error-msg {
+      color: #e06d85;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-top: 16px;
+      min-height: 20px;
+    }
+
+    /* 캘린더 그리드 */
+    .calendar-header {
+      margin-bottom: 22px;
+    }
+
+    .calendar-header h2 {
+      font-family: 'Gowun Batang', serif;
+      font-size: 1.35rem;
+      color: #4a3e42;
+      margin-bottom: 6px;
+    }
+
+    .calendar-header p {
+      font-size: 0.85rem;
+      color: #b56576;
+      font-weight: 600;
+    }
+
+    .date-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      max-height: 420px;
+      overflow-y: auto;
+      padding: 4px;
+    }
+
+    .date-item {
+      padding: 12px 6px;
+      border-radius: 12px;
+      border: 1px solid #ebd9de;
+      background: #ffffff;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .date-item:hover {
+      background: #fff5f7;
+      border-color: #e5989b;
+      transform: translateY(-2px);
+    }
+
+    .date-item .day-text {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .date-item .icon {
+      font-size: 1rem;
+    }
+
+    /* 운세 & 음성 화면 */
+    .letter-view {
+      font-family: 'Gowun Batang', serif;
+      animation: fadeIn 0.7s ease forwards;
+    }
+
+    .letter-date {
+      font-size: 1rem;
+      color: #8c767c;
+      margin-bottom: 22px;
+      font-family: "Pretendard", sans-serif;
+      font-weight: 600;
+    }
+
+    .fortune-card {
+      background: #fff8f9;
+      border: 1px solid #f6d8df;
+      border-radius: 18px;
+      padding: 24px 20px;
+      margin-bottom: 26px;
+      box-shadow: 0 4px 15px rgba(220, 180, 195, 0.12);
+    }
+
+    .fortune-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #ffe3e8;
+      color: #b56576;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      font-family: "Pretendard", sans-serif;
+    }
+
+    .fortune-main {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #4a3339;
+      margin-bottom: 10px;
+      word-break: keep-all;
+    }
+
+    .fortune-sub {
+      font-size: 0.98rem;
+      color: #665257;
+      line-height: 1.6;
+      word-break: keep-all;
+    }
+
+    .voice-guide {
+      font-size: 0.9rem;
+      color: #8c767c;
+      margin-bottom: 10px;
+      font-family: "Pretendard", sans-serif;
+    }
+
+    .audio-player-container {
+      margin-bottom: 28px;
+      background: #ffffff;
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid #ebd9de;
+    }
+
+    .audio-player-container audio {
+      width: 100%;
+      height: 40px;
+    }
+
+    .back-btn {
+      width: 100%;
+      padding: 14px;
+      background: #6c584c;
+      color: #ffffff;
+      border: none;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: "Pretendard", sans-serif;
+      transition: background 0.2s;
+    }
+
+    .back-btn:hover {
+      background: #57463c;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- 1단계: 본인 인증 퀴즈 -->
+    <div class="card" id="quiz-card">
+      <div class="step-indicator" id="step-label">Question A / D</div>
+      <div class="question-title" id="question-text"></div>
+      <div class="options" id="options-container"></div>
+      <div class="error-msg" id="error-text"></div>
+    </div>
+
+    <!-- 2단계: 날짜 선택 캘린더 (전체 잠금 해제됨) -->
+    <div class="card hidden" id="calendar-card">
+      <div class="calendar-header">
+        <h2>매일 전하는 이야기 💌</h2>
+        <p>[검수 모드] 모든 날짜를 바로 열어볼 수 있습니다.</p>
+      </div>
+      <div class="date-grid" id="date-grid"></div>
+    </div>
+
+    <!-- 3단계: 오늘의 운세 & 음성 녹음 -->
+    <div class="card hidden" id="letter-card">
+      <div class="letter-view">
+        <div class="letter-date" id="view-date">2026. 09. 04</div>
+        
+        <div class="fortune-card">
+          <div class="fortune-tag" id="view-tag">🔮 오늘의 운세</div>
+          <div class="fortune-main" id="view-fortune-main">총운</div>
+          <div class="fortune-sub" id="view-fortune-sub">오늘의 포인트</div>
+        </div>
+
+        <div class="voice-guide">🎙️ 누나에게 남기는 음성 메시지</div>
+        <div class="audio-player-container">
+          <audio id="view-audio" controls controlsList="nodownload">
+            <source id="audio-source" src="" type="audio/mp4">
+            해당 브라우저는 오디오 재생을 지원하지 않습니다.
+          </audio>
+        </div>
+
+        <button class="back-btn" id="back-to-calendar">목록으로 돌아가기</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* 1. 퀴즈 데이터 */
+    const quizData = [
+      {
+        step: "Question A / D",
+        question: "너와 내가 공백기 이후에 처음으로 목소리를 들으며 대화를 나눈 날은?",
+        correct: 1,
+        options: ["8월 11일", "8월 12일", "8월 13일", "8월 14일", "8월 15일"]
+      },
+      {
+        step: "Question B / D",
+        question: "내가 태어난 날은?",
+        correct: 2,
+        options: ["2004년 12월 25일", "2005년 1월 5일", "2005년 2월 14일", "2005년 3월 20일", "2005년 5월 5일"]
+      },
+      {
+        step: "Question C / D",
+        question: "내가 네게 써준 시의 제목은?",
+        correct: 1,
+        options: ["蒔誾", "時恩", "始恩", "市銀", "柴隱"]
+      },
+      {
+        step: "Question D / D",
+        question: "요즘 너에 대한 내 생각은?",
+        correct: 5,
+        options: ["별 생각 없다.", "고민이 많다.", "마냥 걱정된다.", "심술이 난다.", "많이 보고 싶다."]
+      }
+    ];
+
+    /* 2. 9월 4일 ~ 10월 15일 운세 데이터 */
+    const dailyData = {
+      "2026-09-04": { main: "총운 : 싱글벙글", point: "준 것보다 더 많이 받아요." },
+      "2026-09-05": { main: "총운 : 분골쇄신", point: "목적지를 명확히 하세요." },
+      "2026-09-06": { main: "총운 : 박장대소", point: "자신감과 당당함이 넘치는 하루네요." },
+      "2026-09-07": { main: "총운 : 다기망양", point: "휴식이 절실한 하루군요." },
+      "2026-09-08": { main: "총운 : 전화위복", point: "도움을 줄 때는 득실 따지지 마세요." },
+      "2026-09-09": { main: "총운 : 암중모색", point: "갑작스레 무리를 하지는 마세요." },
+      "2026-09-10": { main: "총운 : 좌절금지", point: "좌절하거나 포기하지 마세요." },
+      "2026-09-11": { main: "총운 : 형설지공", point: "작은 일 하나로도 새로운 힘을 얻을 수 있어요." },
+      "2026-09-12": { main: "총운 : 계포일낙", point: "편안함을 느끼는 자리에 있을수록 좋아요." },
+      "2026-09-13": { main: "총운 : 구사일생", point: "완벽하지 않아도 되는 날입니다." },
+      "2026-09-14": { main: "총운 : 견토지쟁", point: "마음을 비우고 상황을 유지하는 게 좋아요." },
+      "2026-09-15": { main: "총운 : 명경지수", point: "소신을 가지고 진행하세요." },
+      "2026-09-16": { main: "총운 : 다기망양", point: "다소 지쳐 있는 것은 아닌지 체크해보세요." },
+      "2026-09-17": { main: "총운 : 백락일고", point: "당신 그대로의 모습을 보여주세요." },
+      "2026-09-18": { main: "총운 : 어부지리", point: "사는 것이 전혀 힘들지도 괴롭지도 않겠어요." },
+      "2026-09-19": { main: "총운 : 전력질주", point: "작은 변화를 꿈꾸기에 적절한 시기예요." },
+      "2026-09-20": { main: "총운 : 호연지기", point: "중간에서 얻을 수 있는 것이 많아요." },
+      "2026-09-21": { main: "총운 : 충전모드", point: "철저한 계획이 필요한 때이군요." },
+      "2026-09-22": { main: "총운 : 금의환향", point: "가는 곳마다 당신을 반기네요." },
+      "2026-09-23": { main: "총운 : 겸인지용", point: "이런 날 일상을 벗어나는 건 어떠세요?" },
+      "2026-09-24": { main: "총운 : 금상첨화", point: "혼자 힘으로 여러 가지를 해낼 수 있어요." },
+      "2026-09-25": { main: "총운 : 조삼모사", point: "잘못된 습관을 고치는 하루입니다." },
+      "2026-09-26": { main: "총운 : 하면된다", point: "어려운 일이 있었다면 해결이 가능해요." },
+      "2026-09-27": { main: "총운 : 도청도설", point: "순간적으로 화를 내지 않도록 하세요." },
+      "2026-09-28": { main: "총운 : 싱글벙글", point: "새로운 사람을 만나기 좋은 날이에요." },
+      "2026-09-29": { main: "총운 : 안불망위", point: "가까운 사이일수록 배려가 필요해요." },
+      "2026-09-30": { main: "총운 : 임전무퇴", point: "머리보다 몸이 필요한 하루네요." },
+      "2026-10-01": { main: "총운 : 꽃길로만", point: "이익이 사방에 널려 있어요." },
+      "2026-10-02": { main: "총운 : 성공시대", point: "고민의 실마리가 풀려가네요." },
+      "2026-10-03": { main: "총운 : 장마전선", point: "이것저것 해보는 것도 나쁘지만은 않군요." }
+    };
+
+    let currentStep = 0;
+
+    const quizCard = document.getElementById("quiz-card");
+    const calendarCard = document.getElementById("calendar-card");
+    const letterCard = document.getElementById("letter-card");
+
+    const stepLabel = document.getElementById("step-label");
+    const questionText = document.getElementById("question-text");
+    const optionsContainer = document.getElementById("options-container");
+    const errorText = document.getElementById("error-text");
+
+    const dateGrid = document.getElementById("date-grid");
+    const viewDate = document.getElementById("view-date");
+    const viewTag = document.getElementById("view-tag");
+    const viewFortuneMain = document.getElementById("view-fortune-main");
+    const viewFortuneSub = document.getElementById("view-fortune-sub");
+    const viewAudio = document.getElementById("view-audio");
+    const audioSource = document.getElementById("audio-source");
+    const backBtn = document.getElementById("back-to-calendar");
+
+    function renderQuestion() {
+      const current = quizData[currentStep];
+      stepLabel.innerText = current.step;
+      questionText.innerText = current.question;
+      errorText.innerText = "";
+      optionsContainer.innerHTML = "";
+
+      current.options.forEach((opt, index) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.innerText = `${index + 1}번. ${opt}`;
+        btn.onclick = () => handleChoice(index + 1);
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function handleChoice(selectedAnswer) {
+      if (selectedAnswer === quizData[currentStep].correct) {
+        currentStep++;
+        if (currentStep < quizData.length) {
+          renderQuestion();
+        } else {
+          quizCard.classList.add("hidden");
+          calendarCard.classList.remove("hidden");
+          renderCalendar();
+        }
+      } else {
+        errorText.innerText = "오답입니다! 다시 선택하세요!";
+      }
+    }
+
+    /* 모든 날짜 즉시 열람 가능하게 잠금 로직 해제 */
+    function renderCalendar() {
+      dateGrid.innerHTML = "";
+      const startDate = new Date(2026, 8, 4); // 9월 4일
+      const endDate = new Date(2026, 9, 15);  // 10월 15일
+
+      let cur = new Date(startDate);
+      while (cur <= endDate) {
+        const yyyy = cur.getFullYear();
+        const mm = String(cur.getMonth() + 1).padStart(2, '0');
+        const dd = String(cur.getDate()).padStart(2, '0');
+        const dateStr = `${yyyy}-${mm}-${dd}`;
+        const displayLabel = `${cur.getMonth() + 1}.${cur.getDate()}`;
+
+        const item = document.createElement("div");
+        item.className = "date-item";
+        item.innerHTML = `
+          <span class="icon">💌</span>
+          <span class="day-text">${displayLabel}</span>
+        `;
+
+        item.onclick = () => openLetter(dateStr, displayLabel);
+
+        dateGrid.appendChild(item);
+        cur.setDate(cur.getDate() + 1);
+      }
+    }
+
+    function openLetter(dateKey, displayLabel) {
+      calendarCard.classList.add("hidden");
+      letterCard.classList.remove("hidden");
+
+      viewDate.innerText = `2026년 ${displayLabel}`;
+      
+      if (dailyData[dateKey]) {
+        viewTag.innerText = "🔮 오늘의 운세";
+        viewFortuneMain.innerText = dailyData[dateKey].main;
+        viewFortuneSub.innerText = dailyData[dateKey].point ? `오늘의 포인트 : ${dailyData[dateKey].point}` : "";
+      } else {
+        viewTag.innerText = "💌 From Me";
+        viewFortuneMain.innerText = "시은이에게 하고 싶은 말";
+        viewFortuneSub.innerText = "오늘 하루도 따뜻하게 보내길 바라며 녹음본을 들어줘.";
+      }
+
+      audioSource.src = `audio/${dateKey}.m4a`;
+      viewAudio.load();
+    }
+
+    backBtn.addEventListener("click", () => {
+      viewAudio.pause();
+      letterCard.classList.add("hidden");
+      calendarCard.classList.remove("hidden");
+    });
+
+    renderQuestion();
+  </script>
+</body>
+</html>
