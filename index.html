@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>From. 시은이에게</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: linear-gradient(135deg, #fff0f5 0%, #fdfbfb 50%, #f3e7e9 100%);
+      color: #333333;
+      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 32px 24px;
+      border-radius: 24px;
+      box-shadow: 0 12px 35px rgba(220, 180, 195, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      text-align: center;
+    }
+
+    /* 퀴즈 영역 스타일 */
+    .step-indicator {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #b08d98;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+
+    .question-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      line-height: 1.5;
+      color: #3f3337;
+      margin-bottom: 24px;
+      word-break: keep-all;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option-btn {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid #f0e2e5;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      color: #4a3e42;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+    }
+
+    .option-btn:hover {
+      background: #fff5f7;
+      border-color: #f3c2ce;
+    }
+
+    .error-msg {
+      color: #e06d85;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-top: 16px;
+      min-height: 20px;
+    }
+
+    /* 캘린더 리스트 스타일 */
+    .calendar-header {
+      margin-bottom: 20px;
+    }
+
+    .calendar-header h2 {
+      font-family: 'Gowun Batang', serif;
+      font-size: 1.35rem;
+      color: #4a3e42;
+      margin-bottom: 6px;
+    }
+
+    .calendar-header p {
+      font-size: 0.85rem;
+      color: #8c767c;
+    }
+
+    .date-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 6px;
+    }
+
+    .date-item {
+      padding: 12px 6px;
+      border-radius: 12px;
+      border: 1px solid #ebd9de;
+      background: #ffffff;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .date-item.active:hover {
+      background: #fff5f7;
+      border-color: #e5989b;
+      transform: translateY(-2px);
+    }
+
+    .date-item.locked {
+      background: #f1ede5;
+      border-color: #e0d8ce;
+      color: #a3988e;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .date-item .day-text {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .date-item .icon {
+      font-size: 1rem;
+    }
+
+    /* 상세 편지/음성 화면 */
+    .letter-view {
+      text-align: left;
+      font-family: 'Gowun Batang', serif;
+      animation: fadeIn 0.8s ease forwards;
+    }
+
+    .letter-date {
+      font-size: 0.95rem;
+      color: #8c767c;
+      margin-bottom: 16px;
+      text-align: center;
+      font-family: "Pretendard", sans-serif;
+    }
+
+    .fortune-box {
+      background: #fff9fa;
+      border-left: 3px solid #e5989b;
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+    }
+
+    .fortune-title {
+      font-weight: 700;
+      color: #8f4f5f;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+
+    .fortune-content {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #555555;
+    }
+
+    .message-content {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: #333333;
+      white-space: pre-wrap;
+      margin-bottom: 24px;
+      min-height: 120px;
+    }
+
+    .audio-player-container {
+      margin-bottom: 24px;
+      background: #fdfbfb;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid #f0e2e5;
+    }
+
+    .audio-player-container audio {
+      width: 100%;
+      height: 40px;
+    }
+
+    .back-btn {
+      width: 100%;
+      padding: 13px;
+      background: #6c584c;
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: "Pretendard", sans-serif;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- 1단계: 인증 퀴즈 -->
+    <div class="card" id="quiz-card">
+      <div class="step-indicator" id="step-label">Question A / D</div>
+      <div class="question-title" id="question-text"></div>
+      <div class="options" id="options-container"></div>
+      <div class="error-msg" id="error-text"></div>
+    </div>
+
+    <!-- 2단계: 날짜 선택 캘린더 -->
+    <div class="card hidden" id="calendar-card">
+      <div class="calendar-header">
+        <h2>매일 전하는 이야기 💌</h2>
+        <p>해당 날짜가 되어야 열람할 수 있어요.</p>
+      </div>
+      <div class="date-grid" id="date-grid"></div>
+    </div>
+
+    <!-- 3단계: 날짜별 운세 & 편지 & 음성 보기 -->
+    <div class="card hidden" id="letter-card">
+      <div class="letter-view">
+        <div class="letter-date" id="view-date">2026. 09. 04</div>
+        <div class="fortune-box">
+          <div class="fortune-title">🔮 오늘의 운세</div>
+          <div class="fortune-content" id="view-fortune">운세 내용</div>
+        </div>
+        <div class="message-content" id="view-message">내가 해주고 싶은 말</div>
+        
+        <div class="audio-player-container">
+          <audio id="view-audio" controls controlsList="nodownload">
+            해당 브라우저는 오디오 재생을 지원하지 않습니다.
+          </audio>
+        </div>
+
+        <button class="back-btn" id="back-to-calendar">목록으로 돌아가기</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* 1. 퀴즈 데이터 */
+    const quizData = [
+      {
+        step: "Question A / D",
+        question: "너와 내가 공백기 이후에 처음으로 목소리를 들으며 대화를 나눈 날은?",
+        correct: 1,
+        options: ["8월 11일", "8월 12일", "8월 13일", "8월 14일", "8월 15일"]
+      },
+      {
+        step: "Question B / D",
+        question: "내가 태어난 날은?",
+        correct: 2,
+        options: ["2004년 12월 25일", "2005년 1월 5일", "2005년 2월 14일", "2005년 3월 20일", "2005년 5월 5일"]
+      },
+      {
+        step: "Question C / D",
+        question: "내가 네게 써준 시의 제목은?",
+        correct: 1,
+        options: ["蒔誾", "時恩", "始恩", "市銀", "柴隱"]
+      },
+      {
+        step: "Question D / D",
+        question: "요즘 너에 대한 내 생각은?",
+        correct: 5,
+        options: ["별 생각 없다.", "고민이 많다.", "마냥 걱정된다.", "심술이 난다.", "많이 보고 싶다."]
+      }
+    ];
+
+    /* 2. 날짜별 운세 및 편지 데이터 (오늘인 2026-09-04 추가됨) */
+    const dailyData = {
+      "2026-09-04": {
+        fortune: "소중한 사람과의 마음이 닿는 날. 작은 준비와 진심이 큰 감동으로 이어집니다.",
+        message: "시은아 안녕! 테스트용 첫 편지야.\n이 페이지가 잘 보이고 목소리도 잘 들렸으면 좋겠네.\n군대 가기 전까지 남은 시간도, 다녀오는 시간도 늘 네 곁에 있을게."
+      },
+      "2026-09-07": {
+        fortune: "새로운 시작의 날. 마음이 조금 복잡할 수 있으나 차분함을 유지하면 편안해집니다.",
+        message: "시은아 안녕, 오늘 내가 입대하는 날이네.\n처음엔 서로 낯설고 허전하겠지만 금방 적응하고 올 테니까 너무 걱정하지 마.\n오늘 하루도 밥 잘 챙겨 먹고 좋은 하루 보내 누나."
+      },
+      "2026-09-08": {
+        fortune: "주변 사람들과의 따뜻한 대화가 마음에 큰 위로가 되는 하루입니다.",
+        message: "훈련소의 둘째 날 아침이야.\n아침에 눈 뜨자마자 누나 생각이 제일 먼저 나더라.\n오늘 날씨는 어떤지, 감기는 안 걸렸는지 궁금해."
+      }
+    };
+
+    let currentStep = 0;
+
+    // DOM 요소
+    const quizCard = document.getElementById("quiz-card");
+    const calendarCard = document.getElementById("calendar-card");
+    const letterCard = document.getElementById("letter-card");
+
+    const stepLabel = document.getElementById("step-label");
+    const questionText = document.getElementById("question-text");
+    const optionsContainer = document.getElementById("options-container");
+    const errorText = document.getElementById("error-text");
+
+    const dateGrid = document.getElementById("date-grid");
+    const viewDate = document.getElementById("view-date");
+    const viewFortune = document.getElementById("view-fortune");
+    const viewMessage = document.getElementById("view-message");
+    const viewAudio = document.getElementById("view-audio");
+    const backBtn = document.getElementById("back-to-calendar");
+
+    // 퀴즈 렌더링
+    function renderQuestion() {
+      const current = quizData[currentStep];
+      stepLabel.innerText = current.step;
+      questionText.innerText = current.question;
+      errorText.innerText = "";
+      optionsContainer.innerHTML = "";
+
+      current.options.forEach((opt, index) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.innerText = `${index + 1}번. ${opt}`;
+        btn.onclick = () => handleChoice(index + 1);
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function handleChoice(selectedAnswer) {
+      if (selectedAnswer === quizData[currentStep].correct) {
+        currentStep++;
+        if (currentStep < quizData.length) {
+          renderQuestion();
+        } else {
+          quizCard.classList.add("hidden");
+          calendarCard.classList.remove("hidden");
+          renderCalendar();
+        }
+      } else {
+        errorText.innerText = "오답입니다! 다시 선택하세요!";
+      }
+    }
+
+    // 날짜 생성 (시작일을 9월 4일로 설정)
+    function renderCalendar() {
+      dateGrid.innerHTML = "";
+      const startDate = new Date(2026, 8, 4); // 9월 4일 시작
+      const endDate = new Date(2026, 9, 15);  // 10월 15일 종료
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      let cur = new Date(startDate);
+      while (cur <= endDate) {
+        const yyyy = cur.getFullYear();
+        const mm = String(cur.getMonth() + 1).padStart(2, '0');
+        const dd = String(cur.getDate()).padStart(2, '0');
+        const dateStr = `${yyyy}-${mm}-${dd}`;
+        const displayLabel = `${cur.getMonth() + 1}.${cur.getDate()}`;
+
+        // 오늘 날짜 이전이거나 오늘은 열람 가능, 내일부터는 잠금
+        const isLocked = cur > today;
+
+        const item = document.createElement("div");
+        item.className = `date-item ${isLocked ? 'locked' : 'active'}`;
+        item.innerHTML = `
+          <span class="icon">${isLocked ? '🔒' : '💌'}</span>
+          <span class="day-text">${displayLabel}</span>
+        `;
+
+        if (!isLocked) {
+          item.onclick = () => openLetter(dateStr, displayLabel);
+        } else {
+          item.onclick = () => alert("해당 날짜가 되어야 편지를 열 수 있어요!");
+        }
+
+        dateGrid.appendChild(item);
+        cur.setDate(cur.getDate() + 1);
+      }
+    }
+
+    // 편지 화면 오픈
+    function openLetter(dateKey, displayLabel) {
+      calendarCard.classList.add("hidden");
+      letterCard.classList.remove("hidden");
+
+      viewDate.innerText = `2026년 ${displayLabel}`;
+      
+      const content = dailyData[dateKey] || {
+        fortune: "편안하고 무탈한 하루가 될 것입니다.",
+        message: "오늘도 훈련소에서 누나 생각하면서 씩씩하게 잘 보내고 있어.\n다치지 않고 건강하게 돌아갈게."
+      };
+
+      viewFortune.innerText = content.fortune;
+      viewMessage.innerText = content.message;
+
+      // audio/2026-09-04.mp3 형식으로 불러옴
+      viewAudio.src = `audio/${dateKey}.mp3`;
+      viewAudio.load();
+    }
+
+    // 뒤로가기 버튼
+    backBtn.addEventListener("click", () => {
+      viewAudio.pause();
+      letterCard.classList.add("hidden");
+      calendarCard.classList.remove("hidden");
+    });
+
+    renderQuestion();
+  </script>
+</body>
+</html>
