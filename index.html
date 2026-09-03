@@ -267,6 +267,7 @@
         
         <div class="audio-player-container">
           <audio id="view-audio" controls controlsList="nodownload">
+            <source id="audio-source" src="" type="audio/mp4">
             해당 브라우저는 오디오 재생을 지원하지 않습니다.
           </audio>
         </div>
@@ -305,7 +306,7 @@
       }
     ];
 
-    /* 2. 날짜별 운세 및 편지 데이터 (오늘인 2026-09-04 추가됨) */
+    /* 2. 날짜별 운세 및 편지 데이터 (오늘인 2026-09-04 포함) */
     const dailyData = {
       "2026-09-04": {
         fortune: "소중한 사람과의 마음이 닿는 날. 작은 준비와 진심이 큰 감동으로 이어집니다.",
@@ -338,6 +339,7 @@
     const viewFortune = document.getElementById("view-fortune");
     const viewMessage = document.getElementById("view-message");
     const viewAudio = document.getElementById("view-audio");
+    const audioSource = document.getElementById("audio-source");
     const backBtn = document.getElementById("back-to-calendar");
 
     // 퀴즈 렌더링
@@ -372,11 +374,11 @@
       }
     }
 
-    // 날짜 생성 (시작일을 9월 4일로 설정)
+    // 날짜 생성 (9월 4일 시작 ~ 10월 15일 종료)
     function renderCalendar() {
       dateGrid.innerHTML = "";
-      const startDate = new Date(2026, 8, 4); // 9월 4일 시작
-      const endDate = new Date(2026, 9, 15);  // 10월 15일 종료
+      const startDate = new Date(2026, 8, 4); // 9월 4일
+      const endDate = new Date(2026, 9, 15);  // 10월 15일
       
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -425,8 +427,9 @@
       viewFortune.innerText = content.fortune;
       viewMessage.innerText = content.message;
 
-      // audio/2026-09-04.mp3 형식으로 불러옴
-      viewAudio.src = `audio/${dateKey}.mp3`;
+      // .m4a 파일 경로 연결 (audio/2026-09-04.m4a)
+      const audioUrl = `audio/${dateKey}.m4a`;
+      audioSource.src = audioUrl;
       viewAudio.load();
     }
 
