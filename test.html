@@ -46,7 +46,6 @@
       text-align: center;
     }
 
-    /* 비밀번호 입력 화면 */
     .lock-icon {
       font-size: 2.2rem;
       margin-bottom: 12px;
@@ -122,7 +121,6 @@
       min-height: 20px;
     }
 
-    /* 캘린더 그리드 */
     .calendar-header {
       margin-bottom: 22px;
     }
@@ -177,7 +175,6 @@
       font-size: 1rem;
     }
 
-    /* 운세 & 음성 화면 */
     .letter-view {
       font-family: 'Gowun Batang', serif;
       animation: fadeIn 0.7s ease forwards;
@@ -284,7 +281,6 @@
 <body>
 
   <div class="container">
-    <!-- 1단계: 4자리 비밀번호 입력 -->
     <div class="card" id="password-card">
       <div class="lock-icon">🔒</div>
       <div class="pw-title">비밀번호를 입력해 주세요</div>
@@ -306,7 +302,6 @@
       <div class="error-msg" id="error-text"></div>
     </div>
 
-    <!-- 2단계: 캘린더 그리드 (전체 열람 모드) -->
     <div class="card hidden" id="calendar-card">
       <div class="calendar-header">
         <h2>매일 전하는 이야기 💌</h2>
@@ -315,7 +310,6 @@
       <div class="date-grid" id="date-grid"></div>
     </div>
 
-    <!-- 3단계: 오늘의 운세 & 음성 재생 -->
     <div class="card hidden" id="letter-card">
       <div class="letter-view">
         <div class="letter-date" id="view-date">2026. 09. 04</div>
@@ -340,10 +334,8 @@
   </div>
 
   <script>
-    /* 비밀번호 설정 */
     const CORRECT_PASSWORD = "1215";
 
-    /* 9월 4일 ~ 10월 15일 운세 데이터 */
     const dailyData = {
       "2026-09-04": { main: "총운 : 싱글벙글", point: "준 것보다 더 많이 받아요." },
       "2026-09-05": { main: "총운 : 분골쇄신", point: "목적지를 명확히 하세요." },
@@ -371,13 +363,22 @@
       "2026-09-27": { main: "총운 : 도청도설", point: "순간적으로 화를 내지 않도록 하세요." },
       "2026-09-28": { main: "총운 : 싱글벙글", point: "새로운 사람을 만나기 좋은 날이에요." },
       "2026-09-29": { main: "총운 : 안불망위", point: "가까운 사이일수록 배려가 필요해요." },
-      "2026-09-30": { main: "총운 : 임전무퇴", point: "머리보다 몸이 필요한 하루네요." },
-      "2026-10-01": { main: "총운 : 꽃길로만", point: "이익이 사방에 널려 있어요." },
-      "2026-10-02": { main: "총운 : 성공시대", point: "고민의 실마리가 풀려가네요." },
-      "2026-10-03": { main: "총운 : 장마전선", point: "이것저것 해보는 것도 나쁘지만은 않군요." }
+      "2026-09-30": { main: "총운 : 임전무퇴", point: "머리보다 몸이 필요한 하루네요." }
     };
 
-    // DOM 요소
+    /* 주차별 폴더 자동 구분 함수 */
+    function getAudioFolder(dateKey) {
+      if (dateKey >= "2026-09-04" && dateKey <= "2026-09-08") {
+        return "week1";
+      } else if (dateKey >= "2026-09-09" && dateKey <= "2026-09-14") {
+        return "week2";
+      } else if (dateKey >= "2026-09-15" && dateKey <= "2026-09-21") {
+        return "week3";
+      } else {
+        return "week4";
+      }
+    }
+
     const passwordCard = document.getElementById("password-card");
     const calendarCard = document.getElementById("calendar-card");
     const letterCard = document.getElementById("letter-card");
@@ -395,7 +396,6 @@
     const audioSource = document.getElementById("audio-source");
     const backBtn = document.getElementById("back-to-calendar");
 
-    // 비밀번호 검증
     function checkPassword() {
       if (pwInput.value.trim() === CORRECT_PASSWORD) {
         passwordCard.classList.add("hidden");
@@ -419,11 +419,11 @@
       }
     });
 
-    // 캘린더 생성 (잠금 로직 제거: 전 날짜 즉시 열람)
+    /* 모든 날짜 즉시 열람 */
     function renderCalendar() {
       dateGrid.innerHTML = "";
-      const startDate = new Date(2026, 8, 4); // 9월 4일
-      const endDate = new Date(2026, 9, 15);  // 10월 15일
+      const startDate = new Date(2026, 8, 4);
+      const endDate = new Date(2026, 8, 30); // 9월 30일까지
 
       let cur = new Date(startDate);
       while (cur <= endDate) {
@@ -463,7 +463,9 @@
         viewFortuneSub.innerText = "오늘 하루도 따뜻하게 보내길 바라며 녹음본을 들어줘.";
       }
 
-      audioSource.src = `audio/${dateKey}.m4a`;
+      // 주차별 폴더 경로 매핑: audio/[week1~4]/[날짜].m4a
+      const subFolder = getAudioFolder(dateKey);
+      audioSource.src = `audio/${subFolder}/${dateKey}.m4a`;
       viewAudio.load();
     }
 
